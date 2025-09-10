@@ -119,10 +119,10 @@ RUN mkdir -p models/checkpoints models/vae models/unet models/clip models/clip_v
 # Download Wan models if MODEL_TYPE is wan-i2v
 RUN if [ "$MODEL_TYPE" = "wan-i2v" ]; then \
       echo "Downloading Wan Image-to-Video models..." && \
-      wget -q -O models/unet/wan2.1-i2v-14b-480p-Q8_0.gguf https://huggingface.co/wangfuyun/wan2.1-i2v-14b/resolve/main/wan2.1-i2v-14b-480p-Q8_0.gguf && \
-      wget -q -O models/vae/wan_2.1_vae.safetensors https://huggingface.co/wangfuyun/wan2.1-i2v-14b/resolve/main/wan_2.1_vae.safetensors && \
-      wget -q -O models/clip/umt5_xxl_fp8_e4m3fn_scaled.safetensors https://huggingface.co/wangfuyun/wan2.1-i2v-14b/resolve/main/umt5_xxl_fp8_e4m3fn_scaled.safetensors && \
-      wget -q -O models/clip_vision/clip_vision_h.safetensors https://huggingface.co/comfyanonymous/clip_vision_h/resolve/main/clip_vision_h.safetensors; \
+      wget -q -O models/unet/wan2.1-i2v-14b-480p-Q8_0.gguf https://huggingface.co/city96/Wan2.1-I2V-14B-480P-gguf/resolve/main/wan2.1-i2v-14b-480p-Q8_0.gguf && \
+      wget -q -O models/vae/wan_2.1_vae.safetensors https://huggingface.co/Comfy-Org/Wan_2.1_ComfyUI_repackaged/resolve/main/split_files/wan_2.1_vae.safetensors && \
+      wget -q -O models/clip/umt5_xxl_fp8_e4m3fn_scaled.safetensors https://huggingface.co/Comfy-Org/Wan_2.1_ComfyUI_repackaged/resolve/main/split_files/umt5_xxl_fp8_e4m3fn_scaled.safetensors && \
+      wget -q -O models/clip_vision/clip_vision_h.safetensors https://huggingface.co/Comfy-Org/Wan_2.1_ComfyUI_repackaged/resolve/main/split_files/clip_vision_h.safetensors; \
     fi
 
 # Download checkpoints/vae/unet/clip models to include in image based on model type
