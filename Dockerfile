@@ -64,6 +64,17 @@ RUN if [ "$ENABLE_PYTORCH_UPGRADE" = "true" ]; then \
 # Change working directory to ComfyUI
 WORKDIR /comfyui
 
+# Install custom nodes for Wan Image-to-Video
+RUN cd custom_nodes && \
+    git clone https://github.com/city96/ComfyUI-GGUF.git && \
+    git clone https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite.git && \
+    git clone https://github.com/ZHO-ZHO-ZHO/ComfyUI-Wan.git
+
+# Install requirements for custom nodes
+RUN cd custom_nodes/ComfyUI-GGUF && uv pip install -r requirements.txt || true
+RUN cd custom_nodes/ComfyUI-VideoHelperSuite && uv pip install -r requirements.txt || true
+RUN cd custom_nodes/ComfyUI-Wan && uv pip install -r requirements.txt || true
+
 # Support for the network volume
 ADD src/extra_model_paths.yaml ./
 
@@ -96,13 +107,22 @@ FROM base AS downloader
 
 ARG HUGGINGFACE_ACCESS_TOKEN
 # Set default model type if none is provided
-ARG MODEL_TYPE=flux1-dev-fp8
+ARG MODEL_TYPE=wan-i2v
 
 # Change working directory to ComfyUI
 WORKDIR /comfyui
 
 # Create necessary directories upfront
-RUN mkdir -p models/checkpoints models/vae models/unet models/clip
+RUN mkdir -p models/checkpoints models/vae models/unet models/clip models/clip_vision
+
+# Download Wan models if MODEL_TYPE is wan-i2v
+RUN if [ "$MODEL_TYPE" = "wan-i2v" ]; then \
+      echo "Downloading Wan Image-to-Video models..." && \
+      wget -q -O models/unet/wan2.1-i2v-14b-480p-Q8_0.gguf https://huggingface.co/wangfuyun/wan2.1-i2v-14b/resolve/main/wan2.1-i2v-14b-480p-Q8_0.gguf && \
+      wget -q -O models/vae/wan_2.1_vae.safetensors https://huggingface.co/wangfuyun/wan2.1-i2v-14b/resolve/main/wan_2.1_vae.safetensors && \
+      wget -q -O models/clip/umt5_xxl_fp8_e4m3fn_scaled.safetensors https://huggingface.co/wangfuyun/wan2.1-i2v-14b/resolve/main/umt5_xxl_fp8_e4m3fn_scaled.safetensors && \
+      wget -q -O models/clip_vision/clip_vision_h.safetensors https://huggingface.co/comfyanonymous/clip_vision_h/resolve/main/clip_vision_h.safetensors; \
+    fi
 
 # Download checkpoints/vae/unet/clip models to include in image based on model type
 RUN if [ "$MODEL_TYPE" = "sdxl" ]; then \
