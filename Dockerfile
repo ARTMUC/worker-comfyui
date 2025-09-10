@@ -64,16 +64,17 @@ RUN if [ "$ENABLE_PYTORCH_UPGRADE" = "true" ]; then \
 # Change working directory to ComfyUI
 WORKDIR /comfyui
 
-# Install custom nodes for Wan Image-to-Video
-RUN cd custom_nodes && \
+# Create custom_nodes directory if it doesn't exist and install custom nodes
+RUN mkdir -p custom_nodes && cd custom_nodes && \
     git clone https://github.com/city96/ComfyUI-GGUF.git && \
-    git clone https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite.git && \
-    git clone https://github.com/ZHO-ZHO-ZHO/ComfyUI-Wan.git
+    git clone https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite.git
 
-# Install requirements for custom nodes
-RUN cd custom_nodes/ComfyUI-GGUF && uv pip install -r requirements.txt || true
-RUN cd custom_nodes/ComfyUI-VideoHelperSuite && uv pip install -r requirements.txt || true
-RUN cd custom_nodes/ComfyUI-Wan && uv pip install -r requirements.txt || true
+# Install requirements for custom nodes (with error handling)
+RUN cd custom_nodes/ComfyUI-GGUF && \
+    if [ -f requirements.txt ]; then uv pip install -r requirements.txt; fi
+
+RUN cd custom_nodes/ComfyUI-VideoHelperSuite && \
+    if [ -f requirements.txt ]; then uv pip install -r requirements.txt; fi
 
 # Support for the network volume
 ADD src/extra_model_paths.yaml ./
